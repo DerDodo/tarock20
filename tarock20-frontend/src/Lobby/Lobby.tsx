@@ -1,7 +1,7 @@
 import { Component } from "react";
 import { Table } from "react-bootstrap";
 import { Navigate } from "react-router-dom";
-import OpenGameDto from "../store/OpenGameDto";
+import OpenGameDto from "../domain/OpenGameDto";
 import ServerPathConfig from "../config/ServerPathConfig"
 import playerIdService from "../service/PlayerIdService";
 

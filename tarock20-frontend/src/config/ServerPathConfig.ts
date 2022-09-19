@@ -7,7 +7,9 @@ class RestServerPathConfig {
 
 class WsServerPathConfig {
     public get register() { return "/api/ws/register" }
-    public gameUpdate(gameId: string) { return "/user/topic/game/" + gameId + "/game-update" }
+    public gameSync(gameId: string) { return "/user/topic/game/" + gameId + "/sync" }
+    public gameStarted(gameId: string) { return "/topic/game/" + gameId + "/started" }
+    public playerJoined(gameId: string) { return "/topic/game/" + gameId + "/player-joined" }
     public error(gameId: string) { return "/user/topic/game/" + gameId + "/error" }
 }
 

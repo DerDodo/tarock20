@@ -21,8 +21,20 @@ class RequestMappingPath private constructor() {
 
         private const val WS_GAME_BASE_PATH = "/game/{gameId}"
 
-        fun wsOutGameUpdate(gameId: String): String {
-            return createGameChannel(gameId, "game-update")
+        fun wsOutGameSync(gameId: String): String {
+            return createGameChannel(gameId, "sync")
+        }
+
+        fun wsOutGameStarted(gameId: String): String {
+            return createGameChannel(gameId, "started")
+        }
+
+        fun wsOutGameHandoutCards(gameId: String): String {
+            return createGameChannel(gameId, "handout-cards")
+        }
+
+        fun wsOutGamePlayerJoined(gameId: String): String {
+            return createGameChannel(gameId, "player-joined")
         }
 
         fun wsOutError(gameId: String): String {
@@ -34,5 +46,6 @@ class RequestMappingPath private constructor() {
         }
 
         const val WS_IN_SYNC = "$WS_GAME_BASE_PATH/sync"
+        const val WS_IN_START = "$WS_GAME_BASE_PATH/start"
     }
 }

@@ -1,0 +1,5 @@
+/tarock20-frontend/node_modules
+/.gradle
+/.idea
+/build
+/gradle

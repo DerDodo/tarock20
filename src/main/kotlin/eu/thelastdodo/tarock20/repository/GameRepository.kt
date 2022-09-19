@@ -1,7 +1,7 @@
 package eu.thelastdodo.tarock20.repository
 
 import eu.thelastdodo.tarock20.entity.Game
-import eu.thelastdodo.tarock20.entity.GamePhase
+import eu.thelastdodo.tarock20.entity.enums.GamePhase
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -13,11 +13,6 @@ class GameRepository {
     }
 
     fun findAllOpenGames(playerId: String): List<Game> {
-        if (games.isEmpty()) {
-            games.add(Game("afdasfd"))
-            games.add(Game("afdasfd"))
-            games.add(Game("afdasfd"))
-        }
         return games.filter { game -> isOpen(game) || game.isInGame(playerId) }
     }
 

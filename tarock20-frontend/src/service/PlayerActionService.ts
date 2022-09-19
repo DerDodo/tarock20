@@ -3,9 +3,16 @@ import socketClient from "./GameSocketClient"
 class PlayerActionService {
 
   public sendSync(gameId: string): void {
-    const myDestination = '/app/game/' + gameId + '/sync'
+    this.publicNoArgs('/app/game/' + gameId + '/sync')
+  }
+
+  public startGame(gameId: string): void {
+    this.publicNoArgs('/app/game/' + gameId + '/start')
+  }
+
+  private publicNoArgs(destination: string) {
     const params = {
-        destination: myDestination
+        destination: destination
     }
     socketClient.publish(params)
   }

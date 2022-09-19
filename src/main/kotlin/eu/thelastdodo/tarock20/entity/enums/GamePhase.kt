@@ -1,4 +1,4 @@
-package eu.thelastdodo.tarock20.entity
+package eu.thelastdodo.tarock20.entity.enums
 
 enum class GamePhase {
     NotYetStarted,

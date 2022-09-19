@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import OpenGameDto from './OpenGameDto'
+import OpenGameDto from '../domain/OpenGameDto'
 
 interface AppData {
   openGames: OpenGameDto[],

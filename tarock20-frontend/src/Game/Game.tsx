@@ -1,60 +1,54 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom"
-import GameDto from "../store/GameDto";
+import GameDto from "../domain/GameDto";
 import socketClient from "../service/GameSocketClient";
-import { map } from "rxjs";
 import playerActionService from "../service/PlayerActionService";
-import { ErrorDetails } from "../store/ErrorDetails";
-import { ErrorType } from "../store/ErrorType";
+import { ErrorDetails } from "../domain/ErrorDetails";
+import { ErrorType } from "../domain/ErrorType";
 import playerIdService from "../service/PlayerIdService";
-import ServerPathConfig from "../config/ServerPathConfig";
+import gameSocketWatcher from "../service/GameSocketWatcher";
+import { GamePhase } from "../domain/GamePhase";
+import GameLobby from "./GameLobby";
 
 export default function Game() {
     let { gameId } = useParams()
     let navigate = useNavigate()
-    const [game, setGame] = useState<GameDto | null>(null)
-    const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState<ErrorType | null>(null)
+    let [game, setGame] = useState<GameDto | null>(null)
+    let [isLoading, setIsLoading] = useState(true)
+    let [error, setError] = useState<ErrorType | null>(null)
 
-    if (!gameId) {
-        navigate("/")
-        return null
-    }
-
-    if (!game && !isLoading && !error) {
-        setIsLoading(true)
+    useEffect(() => {
         socketClient.connect(playerIdService.getPlayerId(), () => {
-            if (!gameId) {
-                navigate("/")
-                return null
-            }
-
-            socketClient.watch(ServerPathConfig.ws.gameUpdate(gameId))
-                .pipe(map(msg => GameDto.fromJson(msg.body)))
-                .subscribe({
-                    next: (game) => {
-                        setIsLoading(false)
-                        setGame(game)
-                    }
-                })
-                
-
-            socketClient.watch(ServerPathConfig.ws.error(gameId))
-                .pipe(map(msg => JSON.parse(msg.body)))
-                .subscribe({
-                    next: (error: ErrorDetails) => {
-                        setIsLoading(false)
-                        setError(error.type)
-                    }
-                })
-
-            playerActionService.sendSync(gameId)
+            gameSocketWatcher.error("Game", gameId!, (error: ErrorDetails) => {
+                setIsLoading(false)
+                setError(error.type)
+            })
+    
+            gameSocketWatcher.sync("Game", gameId!, (newGame: GameDto) => {
+                setIsLoading(false)
+                setGame(newGame)
+                game = newGame
+            })
+    
+            gameSocketWatcher.started("Game", gameId!, () => {
+                const newGame = game!.deepCopy()
+                newGame!.phase = GamePhase.Playing
+                setGame(newGame)
+                game = newGame
+            })
+    
+            playerActionService.sendSync(gameId!)
         },
         () => {
             console.log("Couldn't connect to the stomp server.")
             setIsLoading(false)
             setError(ErrorType.ConnectionError)
         })
+    }, [""])
+
+    if (!gameId) {
+        navigate("/")
+        return null
     }
 
     return (
@@ -67,8 +61,11 @@ export default function Game() {
                     <p>Couldn't load the game! ({ error })</p>
                 </div>
             }
-            {!isLoading && game && 
-                <p>{game.otherPlayers.length + 1} players</p>
+            {!isLoading && game && game.phase === GamePhase.NotYetStarted &&
+                <GameLobby game={game} />
+            }
+            {!isLoading && game && game.phase === GamePhase.Playing &&
+                <p>Playing...</p>
             }
         </div>
     )
